@@ -1,5 +1,7 @@
-const functions = require('firebase-functions')
-const admin = require('firebase-admin')
+/* eslint-disable */
+
+const functions = require("firebase-functions")
+const admin = require("firebase-admin")
 //authenticate with firebase database
 var serviceAccount = require("./ucla-dining-crud-api-firebase-adminsdk-he5en-56a50a6d44.json");
 
@@ -7,18 +9,18 @@ admin.initializeApp({
   credential: admin.credential.cert(serviceAccount)
 });
 
-const express = require('express')
+const express = require("express")
 const app = express()
 const db = admin.firestore() //database object
-const cors = require('cors');
-const { QuerySnapshot } = require('firebase-admin/firestore');
+const cors = require("cors");
+const { QuerySnapshot } = require("firebase-admin/firestore");
 app.use ( cors( { origin:true } ) )
 
 //Create - Post
 app.post('/api/create', (req, res) => {
     (async () => {
         try{
-            await db.collection('dining-halls').doc('/' + req.body.id + '/')
+            await db.collection("dining-halls").doc("/" + req.body.id + "/")
             .create({
                 name: req.body.name,
                 description: req.body.description,
@@ -34,10 +36,10 @@ app.post('/api/create', (req, res) => {
 })
 
 //Read - Get (Based on Restaurant ID)
-app.get('/api/read/:id', (req, res) => {
+app.get("/api/read/:id", (req, res) => {
     (async () => {
         try{
-            const document  = db.collection('dining-halls').doc(req.params.id)
+            const document  = db.collection("dining-halls").doc(req.params.id)
             let dining_hall = await document.get()
             let response = dining_hall.data()
             //send info about a dining hall
@@ -50,10 +52,10 @@ app.get('/api/read/:id', (req, res) => {
 })
 
 //Read - Get (All Restaurants)
-app.get('/api/read', (req, res) => {
+app.get("/api/read", (req, res) => {
     (async () => {
         try {
-            let query = db.collection('dining-halls');
+            let query = db.collection("dining-halls");
             let response = [];
             const querySnapshot = await query.get(); // Use `await` directly on the query
             const docs = querySnapshot.docs;
@@ -77,10 +79,10 @@ app.get('/api/read', (req, res) => {
 });
 
 //Update - Put
-app.put('/api/update/:id', (req, res) => {
+app.put("/api/update/:id", (req, res) => {
     (async () => {
         try{
-            const document = db.collection('dining-halls').doc(req.params.id)
+            const document = db.collection("dining-halls").doc(req.params.id)
 
             await document.update({
                 name: req.body.name,
@@ -97,10 +99,10 @@ app.put('/api/update/:id', (req, res) => {
 })
 
 //Delete - Delete
-app.delete('/api/delete/:id', (req, res) => {
+app.delete("/api/delete/:id", (req, res) => {
     (async () => {
         try{
-            const document = db.collection('dining-halls').doc(req.params.id)
+            const document = db.collection("dining-halls").doc(req.params.id)
             await document.delete()
             return res.status(200).send()
         }catch(error){
@@ -112,14 +114,14 @@ app.delete('/api/delete/:id', (req, res) => {
 
 //Create - Post Restaurant Reviews for a Restaurant
 //:id refers to a restaurant's id
-app.post('/api/create/review/:id', (req, res) => {
+app.post("/api/create/review/:id", (req, res) => {
     (async () => {
         try{
             // Get the dining hall information (you can put this logic in a separate function for better code organization)
-            const diningHallDoc = db.collection('dining-halls').doc(req.params.id);
+            const diningHallDoc = db.collection("dining-halls").doc(req.params.id);
             const diningHall = await diningHallDoc.get();
             const diningHallData = diningHall.data();
-            await db.collection('dining-reviews').doc('/' + req.body.id + '/')
+            await db.collection("dining-reviews").doc("/" + req.body.id + "/")
             .create({
                 restaurantID: diningHallDoc.id,
                 restaurantName: diningHallData.name,
@@ -132,7 +134,7 @@ app.post('/api/create/review/:id', (req, res) => {
                 const restaurantName = diningHallData.name; // Replace 'name' with the actual field name
                 return res.status(201).json({ message: `Review created for ${restaurantName}.` });
             } else {
-                return res.status(404).json({ error: 'Dining hall not found' });
+                return res.status(404).json({ error: "Dining hall not found" });
             }
         }catch(error){
             console.log(error)
@@ -141,6 +143,7 @@ app.post('/api/create/review/:id', (req, res) => {
     })()
 })
 
+/*
 // Search - Get (Restaurants by Name)
 app.get('/api/search', async (req, res) => {
     try {
@@ -165,7 +168,7 @@ app.get('/api/search', async (req, res) => {
         res.status(500).send(error);
     }
 });
-
+*/
 
 //Export the api to Firebase Cloud Functions
 exports.app = functions.https.onRequest(app)
